@@ -56,6 +56,7 @@ To set up the necessary environment, install the required Python packages using 
 ```bash
 pip install -r requirements.txt
 ```
+Note, the current implementation has been tested with python 3.12 on Mac and Linux machines.
 
 ## Usage
 
