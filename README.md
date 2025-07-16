@@ -28,18 +28,18 @@ graph TD
         E --> F{Find Density Peaks};
         F --> G{Create Initial Nuclei};
         G --> H{Two-Stage Merging};
-        H --> I(Save `transcripts_anuc.parquet`);
+        H --> I(Save transcripts_anuc.parquet);
     end
 
     subgraph "Step 2: Segment Anucleated Cells (proseg)"
         direction LR
-        I --> J{Run `proseg`};
+        I --> J{Run proseg};
         J --> K[Anucleated Cell Data];
     end
 
     subgraph "Step 3: Merge Results (process_and_merge.py)"
         direction LR
-        L[Original Proseg Data] --> M{Run `process_and_merge.py`};
+        L[Original Proseg Data] --> M{Run process_and_merge.py};
         K --> M;
         M --> N[Final Merged Dataset & Summary Plot];
     end
