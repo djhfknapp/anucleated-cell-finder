@@ -102,21 +102,16 @@ def main():
     orig_counts = pd.read_csv(args.original_dir / "expected-counts.csv.gz", compression='gzip')
     anuc_counts = pd.read_csv(args.anucleated_dir / "expected-counts.csv.gz", compression='gzip')
     # --- Gene list consistency check ---
-    print("Checking for gene list consistency...")
-    orig_genes = set(orig_counts.columns)
-    anuc_genes = set(anuc_counts.columns)
+    print("Aligning gene lists and filling missing values with 0...")
+    # Get all unique gene columns from both dataframes
+    all_genes = list(set(orig_counts.columns) | set(anuc_counts.columns))
 
-    if orig_genes != anuc_genes:
-        missing_in_anuc = orig_genes - anuc_genes
-        extra_in_anuc = anuc_genes - orig_genes
-        error_message = "Gene lists do not match between original and anucleated datasets.\n"
-        if missing_in_anuc:
-            error_message += f"Genes in original but not in anucleated: {missing_in_anuc}\n"
-        if extra_in_anuc:
-            error_message += f"Genes in anucleated but not in original: {extra_in_anuc}\n"
-        raise ValueError(error_message)
+    # Reindex both dataframes to include all genes, filling missing with 0
+    orig_counts = orig_counts.reindex(columns=all_genes, fill_value=0)
+    anuc_counts = anuc_counts.reindex(columns=all_genes, fill_value=0)
 
-    # Ensure the column order of anuc_counts matches orig_counts
+    # Ensure the column order of anuc_counts matches orig_counts for consistent concatenation
+    # This reorders anuc_counts columns to match orig_counts, which now contains all genes.
     anuc_counts = anuc_counts[orig_counts.columns]
 
     # Concatenate all data sources by index (side-by-side)
