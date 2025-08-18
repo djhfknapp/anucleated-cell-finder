@@ -19,6 +19,14 @@ The following diagram illustrates the data flow and decision-making process with
 
 ```mermaid
 graph TD
+    %% === Inputs from initial runs ===
+    subgraph "Prerequisites: Initial Runs"
+        direction LR
+        X[Initial Xenium Run] --> X1(transcripts.parquet);
+        P[Initial proseg Run] --> P1(transcript-metadata.csv.gz);
+    end
+
+    %% === Step 1 ===
     subgraph "Step 1: Find Anucleated Candidates (process_transcripts.py)"
         direction LR
         A[Start] --> B{Load Transcript Data};
@@ -31,12 +39,18 @@ graph TD
         H --> I(Save transcripts_anuc.parquet);
     end
 
+    %% Wire inputs into Step 1
+    X1 --> B
+    P1 --> B
+
+    %% === Step 2 ===
     subgraph "Step 2: Segment Anucleated Cells (proseg)"
         direction LR
         I --> J{Run proseg};
         J --> K[Anucleated Cell Data];
     end
 
+    %% === Step 3 ===
     subgraph "Step 3: Merge Results (process_and_merge.py)"
         direction LR
         L[Original Proseg Data] --> M{Run process_and_merge.py};
@@ -46,10 +60,13 @@ graph TD
 
     N --> O[End];
 
+    %% Styles
     style E fill:#cde4ff,stroke:#333,stroke-width:2px
     style H fill:#bbf,stroke:#333,stroke-width:2px
     style J fill:#cde4ff,stroke:#333,stroke-width:2px
     style M fill:#cde4ff,stroke:#333,stroke-width:2px
+    style X1 fill:#fff5d6,stroke:#333,stroke-width:2px
+    style P1 fill:#fff5d6,stroke:#333,stroke-width:2px
 ```
 
 ## Workflow Context
@@ -80,7 +97,7 @@ python process_transcripts.py [OPTIONS]
 ### Parameters
 
 #### File Paths
-*   `--transcript-metadata-file`: Path to the transcript metadata CSV file (e.g., `transcript-metadata.csv.gz`). Default: `transcript-metadata.csv.gz`.
+*   `--transcript-metadata-file`: Path to the transcript metadata CSV file (e.g., `transcript-metadata.csv.gz`). This was output from the initial proseg run which is upstream of the full path. Default: `transcript-metadata.csv.gz`.
 *   `--transcripts-file`: Path to the main transcripts Parquet file. Default: `transcripts.parquet`.
 *   `--output-parquet-file`: Path to save the updated transcripts data. Default: `transcripts_anuc.parquet`.
 *   `--output-plot-file`: Path to save the output visualization plot. Default: `anucleated_nuclei_plot.png`.
